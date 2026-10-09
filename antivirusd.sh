@@ -8,6 +8,7 @@ malicious_dir="$2"
 interval_secs="$3"
 FLAGGED_EXTENSIONS=(.exe .bat .vbs .scr .ps1)
 KEYWORDS="virus trojan malware worm ransomware"
+mkdir -p "$malicious_dir"
 has_bad_extension() {
 local filename="$1"
 case "$filename" in
@@ -29,15 +30,20 @@ fi
 done
 return 1
 }
+scan_dir(){
+local f
+local name
 for f in "$dir"/*; do
-if has_bad_extension "$f"; then
-echo "$f: BAD extension"
-else
-echo "$f: ok extension"
+if [ ! -f "$f" ]; then
+continue
 fi
-if has_bad_content "$f"; then
-echo "$f: BAD content"
-else
-echo "$f: ok content"
+
+if has_bad_extension "$f" || has_bad_content "$f"; then
+name=$(basename "$f")
+echo "$name is malicious and it is deleted"
+cp "$f" "$malicious_dir/$name"
+rm "$f"
 fi
 done
+}
+scan_dir
