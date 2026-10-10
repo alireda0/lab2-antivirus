@@ -1,3 +1,4 @@
 test_dir/
 quarantine/
 directory-info.*
+whitelist.txt
