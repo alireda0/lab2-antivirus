@@ -19,3 +19,23 @@ lab2-antivirus/
 ├── Makefile
 ├── README.md
 └── .gitignore# lab2-antivirus
+## Bonus 2: Whitelist
+
+Files restored through `restore.sh` (option 1) are remembered as safe so they are not flagged again. This works across daemon restarts because the memory lives in a file on disk.
+
+- Whitelist file: `whitelist.txt`, in the same directory as the scripts, one filename per line.
+- How a file gets added: when the user picks option 1 in `restore.sh`, the filename is appended to `whitelist.txt` (if not already present).
+- How the daemon checks it: in `scan_dir`, right after computing the basename, `is_whitelisted` runs `grep -Fxq "$name" whitelist.txt`. If it matches, the file is skipped before the extension and content checks.
+- Limitation: whitelisting is by filename, not content. Any future file with the same name is also trusted. A stronger design would use `sha256sum` to whitelist exact content.
+
+## Bonus 1: Cron Job
+
+Instead of the long-running daemon, `antivirus-cron.sh` runs once and exits. It is meant to be started by cron on a schedule.
+
+### Prerequisites
+
+```bash
+sudo apt update
+sudo apt install cron
+sudo systemctl enable --now cron
+systemctl status cron
