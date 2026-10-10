@@ -2,3 +2,4 @@ test_dir/
 quarantine/
 directory-info.*
 whitelist.txt
+antivirus-cron.log
