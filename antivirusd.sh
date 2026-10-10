@@ -6,9 +6,11 @@ fi
 dir="$1"
 malicious_dir="$2"
 interval_secs="$3"
+whitelist="whitelist.txt"
 FLAGGED_EXTENSIONS=(.exe .bat .vbs .scr .ps1)
 KEYWORDS="virus trojan malware worm ransomware"
 mkdir -p "$malicious_dir"
+touch "$whitelist"
 has_bad_extension(){
     local filename="$1"
     case "$filename" in
@@ -30,6 +32,10 @@ has_bad_content(){
     done
     return 1
 }
+is_whitelisted(){
+    local name="$1"
+    grep -Fxq "$name" "$whitelist"
+}
 scan_dir(){
     local f
     local name
@@ -37,8 +43,11 @@ scan_dir(){
         if [ ! -f "$f" ]; then
             continue
         fi
+        name=$(basename "$f")
+        if is_whitelisted "$name"; then
+            continue
+        fi
         if has_bad_extension "$f" || has_bad_content "$f"; then
-            name=$(basename "$f")
             echo "$name is malicious and it is DELETED"
             cp "$f" "$malicious_dir/$name"
             rm "$f"
